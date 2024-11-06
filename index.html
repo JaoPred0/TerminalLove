@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terminal Interativo</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            background-color: #1e1e1e;
+            color: #00ff6a;
+            font-family: monospace;
+            overflow: hidden;
+        }
+
+        .terminal {
+            max-width: 100%;
+            height: 100%;
+            padding: 20px;
+            background-color: #000;
+            box-sizing: border-box;
+            overflow-y: auto;
+        }
+
+        .command-line {
+            display: flex;
+            align-items: center;
+        }
+
+        .prompt {
+            color: #00ff6a;
+            margin-right: 5px;
+        }
+
+        .input-field {
+            background-color: transparent;
+            border: none;
+            outline: none;
+            color: #00ff6a;
+            width: 100%;
+            font-size: 18px;
+        }
+
+        .error {
+            color: #ff4c4c;
+        }
+
+        .card {
+            border: 1px solid #00ff6a;
+            padding: 10px;
+            margin-bottom: 10px;
+            background-color: #1e1e1e;
+        }
+
+        .card-title {
+            color: #00ff6a;
+            font-weight: bold;
+        }
+
+        .card-text {
+            color: #fff;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="terminal" id="terminal"></div>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+        crossorigin="anonymous"></script>
+
+    <script>
+        const terminal = document.getElementById("terminal");
+
+        // Comandos disponíveis
+        const commands = {
+            "clear": () => {
+                terminal.innerHTML = "";
+                addCommandLine();
+            },
+            "help": "Comandos disponíveis:\n- clear: limpa a tela\n - help: exibe este documento de ajuda\n - coracao: exibe um coração com iniciais\n - jogo: inicia um joguinho de perguntas e respostas sobre namoro\n - aumentar: aumenta o tamanho da fonte\n - diminuir: diminui o tamanho da fonte\n - fonte: muda a fonte para a próxima disponível\n - cartinhas: exibe um texto aleatório de cartinha",
+            "coracao": () => {
+                addOutput("💚 J + G 💚");
+            },
+            "jogo": () => {
+                startGame();
+            },
+            "aumentar": () => {
+                changeFontSize(2);
+            },
+            "diminuir": () => {
+                changeFontSize(-2);
+            },
+            "fonte": () => {
+                changeFontFamily();
+            },
+            "cartinhas": () => {
+                showRandomCard();
+            }
+        };
+
+        // Função que adiciona a saída do comando ou mensagem de erro
+        function addOutput(text, isError = false) {
+            const line = document.createElement("div");
+            line.textContent = text;
+            if (isError) {
+                line.classList.add("error");
+            }
+            terminal.appendChild(line);
+        }
+
+        // Adiciona uma nova linha de comando ao terminal
+        function addCommandLine() {
+            const commandLine = document.createElement("div");
+            commandLine.classList.add("command-line");
+
+            const prompt = document.createElement("span");
+            prompt.classList.add("prompt");
+            prompt.textContent = "C:\\JoaoPedroAmaTuGabriella\\>";
+
+            const input = document.createElement("input");
+            input.type = "text";
+            input.classList.add("input-field");
+            input.addEventListener("keydown", handleCommand);
+
+            commandLine.appendChild(prompt);
+            commandLine.appendChild(input);
+            terminal.appendChild(commandLine);
+
+            input.focus();
+
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        // Função para manipular o comando inserido
+        function handleCommand(event) {
+            if (event.key === "Enter") {
+                const inputField = event.target;
+                const command = inputField.value.trim();
+
+                addOutput(`C:\\JoaoPedroAmaTuGabriella\\> ${command}`);
+                inputField.remove();
+
+                if (commands[command]) {
+                    if (typeof commands[command] === "function") {
+                        commands[command]();
+                    } else {
+                        addOutput(commands[command]);
+                    }
+                } else {
+                    addOutput(`Erro: comando '${command}' não encontrado.`, true);
+                }
+
+                addCommandLine();
+            }
+        }
+
+        // Inicializa o terminal com a primeira linha de comando
+        addCommandLine();
+
+        // Função para iniciar o jogo de perguntas sobre namoro
+        function startGame() {
+            const questions = [
+                { question: "Como eu expresso meu amor de forma mais sincera?", options: ["1. Através de palavras", "2. Através de gestos", "3. Através de presentes", "4. Através de tempo juntos"], correctAnswer: 4 },
+                { question: "Qual é o maior desafio do relacionamento?", options: ["1. Falta de comunicação", "2. Diferenças de opiniões", "3. Falta de tempo", "4. Falta de confiança"], correctAnswer: 1 },
+                { question: "Como eu lido com os conflitos no relacionamento?", options: ["1. Ignoro", "2. Tento conversar", "3. Espero o tempo passar", "4. Fico chateado",], correctAnswer: 2 },
+                { question: "O que é mais importante em um relacionamento?", options: ["1. Confiança", "2. Amor", "3. Compromisso", "4. Diversão"], correctAnswer: 1 },
+                { question: "Um dia eu vou te abandonar?", options: ["1. Sim", "2. Não", "3. Às vezes", "4. Não sei"], correctAnswer: 2 }
+            ];
+
+            let questionIndex = 0;
+
+            function askQuestion() {
+                if (questionIndex < questions.length) {
+                    const question = questions[questionIndex];
+                    addOutput(question.question);
+                    question.options.forEach(option => addOutput(option));
+
+                    const input = document.createElement("input");
+                    input.type = "text";
+                    input.classList.add("input-field");
+                    input.placeholder = "Digite sua resposta (1-4)";
+                    input.addEventListener("keydown", function (event) {
+                        if (event.key === "Enter") {
+                            const answer = parseInt(input.value.trim());
+                            if (answer === question.correctAnswer) {
+                                addOutput("Resposta correta!");
+                            } else {
+                                addOutput("Resposta errada. Tente novamente.");
+                            }
+
+                            questionIndex++;
+                            askQuestion();
+                        }
+                    });
+
+                    terminal.appendChild(input);
+                    input.focus();
+                } else {
+                    addOutput("Jogo concluído! Obrigado por participar.");
+                    addCommandLine();
+                }
+            }
+
+            askQuestion();
+        }
+
+        // Função para aumentar o tamanho da fonte
+        function changeFontSize(amount) {
+            const currentSize = parseInt(window.getComputedStyle(document.body).fontSize);
+            document.body.style.fontSize = (currentSize + amount) + "px";
+        }
+
+        // Função para mudar a fonte
+        function changeFontFamily() {
+            const fonts = ["monospace", "Arial", "Courier", "Verdana"];
+            const currentFont = document.body.style.fontFamily;
+            const nextFont = fonts[(fonts.indexOf(currentFont) + 1) % fonts.length];
+            document.body.style.fontFamily = nextFont;
+        }
+
+        // Função para exibir cartinhas
+        function showRandomCard() {
+            const cards = [
+                "Cartinha 1 de 10: Um sorriso pode iluminar o dia de qualquer pessoa, nunca subestime seu poder. 💖",
+                "Cartinha 2 de 10: Nos momentos difíceis, lembre-se de que nos somos uma equipe. Juntos, sempre. 🌟",
+                "Cartinha 3 de 10: Nunca vou deixar de dizer o tanto que eu te amo, às vezes, as palavras têm o poder de curar. 💬",
+                "Cartinha 4 de 10: Aproveitar cada momento ao lado, a vida é curta. ⏳",
+                "Cartinha 5 de 10: Às vezes, um simples gesto pode demonstrar mais amor do que palavras. 💕",
+                "Cartinha 6 de 10: Os desafios são parte da vida, mas superá-los juntos só fortalece a relação. 💪",
+                "Cartinha 7 de 10: Olhe para o futuro com esperança, porque o amor é o que nos guia. 🌈",
+                "Cartinha 8 de 10: Em meio à rotina, sempre procure um tempo para você e seu amor. 🕰️",
+                "Cartinha 9 de 10: A confiança é a base de tudo, cuide dela com carinho. 🛡️",
+                "Cartinha 10 de 10: O amor não se mede, se sente, e deve ser vivido intensamente. 🌹"
+            ];
+
+            const randomCard = cards[Math.floor(Math.random() * cards.length)];
+            addOutput(randomCard);
+        }
+    </script>
+</body>
+
+</html>
